@@ -3,7 +3,7 @@
 //! Meant to be used only from `Message` implementations.
 
 use std::cmp::min;
-use std::mem;
+use std::str;
 use std::u32;
 use std::usize;
 
@@ -815,11 +815,21 @@ pub mod string {
     where
         B: Buf,
     {
-        let mut value_bytes = mem::replace(value, String::new()).into_bytes();
-        bytes::merge(wire_type, &mut value_bytes, buf, ctx)?;
-        *value = String::from_utf8(value_bytes)
-            .map_err(|_| DecodeError::new("invalid string value: data is not UTF-8 encoded"))?;
-        Ok(())
+        unsafe {
+            // String::as_mut_vec is unsafe because it doesn't check that the bytes
+            // inserted into it the resulting vec are valid UTF-8. We check
+            // explicitly in order to ensure this is safe.
+            let value = value.as_mut_vec();
+            super::bytes::merge(wire_type, value, buf, ctx)?;
+
+            if let Err(_) = str::from_utf8(value) {
+                // Clear the malformed data.
+                value.clear();
+                return Err(DecodeError::new("invalid string value: data is not UTF-8 encoded"));
+            }
+
+            Ok(())
+        }
     }
 
     length_delimited!(String);
@@ -1421,9 +1431,10 @@ mod test {
     }
 
     #[test]
-    fn string_merge_failure() {
+    fn string_merge_invalid_utf8() {
         let mut s = String::new();
-        let mut buf = Cursor::new(b"\x80\x80");
+        let mut buf = Cursor::new(b"\x02\x80\x80");
+
         let r = string::merge(
             WireType::LengthDelimited,
             &mut s,
