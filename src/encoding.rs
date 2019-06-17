@@ -825,7 +825,9 @@ pub mod string {
             if let Err(_) = str::from_utf8(value) {
                 // Clear the malformed data.
                 value.clear();
-                return Err(DecodeError::new("invalid string value: data is not UTF-8 encoded"));
+                return Err(DecodeError::new(
+                    "invalid string value: data is not UTF-8 encoded",
+                ));
             }
 
             Ok(())
