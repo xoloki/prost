@@ -105,6 +105,7 @@ impl EncodeError {
     }
 }
 
+#[cfg(feature = "std")]
 impl fmt::Display for EncodeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(error::Error::description(self))?;
