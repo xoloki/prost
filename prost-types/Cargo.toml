@@ -19,5 +19,5 @@ default = ["std"]
 std = []
 
 [dependencies]
-bytes = { git = "https://github.com/tokio-rs/bytes", rev = "c17e40115f5bb2a2db71ed90dceae6ec643dc024" }
+bytes = { git = "https://github.com/tokio-rs/bytes", rev = "c17e40115f5bb2a2db71ed90dceae6ec643dc024", default-features = false }
 prost = { version = "0.5.0", path = "..", default-features = false }
