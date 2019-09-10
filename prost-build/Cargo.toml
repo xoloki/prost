@@ -11,7 +11,7 @@ description = "A Protocol Buffers implementation for the Rust Language."
 edition = "2018"
 
 [dependencies]
-bytes = "0.5"
+bytes = { git = "https://github.com/tokio-rs/bytes", rev = "c17e40115f5bb2a2db71ed90dceae6ec643dc024" }
 heck = "0.3"
 itertools = "0.8"
 log = "0.4"
